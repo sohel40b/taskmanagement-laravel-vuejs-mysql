@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Http\Requests\TaskStoreRequest;
 use App\Http\Requests\TaskUpdateRequest;
+use App\Jobs\SendTaskNotification;
+use Illuminate\Support\Facades\Auth;
 
 class TaskController extends Controller
 {
 
     public function index()
     {
-        $data = Task::get();
+        $data = Task::where('user_id',Auth::id())->get();
         if ($data->isNotEmpty()) {
             return response()->json([
                 'status' => true,
@@ -34,7 +36,8 @@ class TaskController extends Controller
     public function store(TaskStoreRequest $request)
     {
         try {
-            Task::create($request->validated());
+            Task::create($request->data());
+            SendTaskNotification::dispatch(Auth::user()->email);
             return response()->json([
                 'status' => true,
                 'message' => 'Task Created Successfully',
@@ -60,11 +63,20 @@ class TaskController extends Controller
     public function update(TaskUpdateRequest $request, Task $task)
     {
         try {
-            $task->update($request->validated());
-            return response()->json([
-                'status' => true,
-                'message' => 'Task Updated Successfully',
-            ], 200);
+            $task = Task::where('user_id', Auth::id())->first();
+            if ($task) {
+                $task->update($request->validated());
+                SendTaskNotification::dispatch(Auth::user()->email);
+                return response()->json([
+                    'status' => true,
+                    'message' => 'Task Updated Successfully',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Data not found',
+                ], 200);
+            }
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
@@ -76,7 +88,9 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
-        if ($task->delete() == true) {
+        $task = Task::where('user_id', Auth::id())->first();
+        if ($task) {
+            $task->delete();
             return response()->json([
                 'status' => true,
                 'message' => 'Task Deleted Successfully',

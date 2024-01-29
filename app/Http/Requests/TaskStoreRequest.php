@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class TaskStoreRequest extends FormRequest
 {
@@ -27,6 +28,15 @@ class TaskStoreRequest extends FormRequest
             'title' => 'required|string|min:5|max:50|unique:tasks,title',
             'description' => 'required|string|max:255',
             'status' => 'required'
+        ];
+    }
+    public function data()
+    {
+        return [
+            'title' => $this->input('title'),
+            'description' => $this->input('description'),
+            'status' => $this->input('status'),
+            'user_id' => Auth::id()
         ];
     }
 
