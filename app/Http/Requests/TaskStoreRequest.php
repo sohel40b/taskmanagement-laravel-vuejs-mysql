@@ -42,9 +42,9 @@ class TaskStoreRequest extends FormRequest
 
     public function failedValidation(Validator $validator){
         throw new HttpResponseException(response()->json([
-            'status'   => false,
+            'status'   => 422,
             'message' => 'Ops! Validation Error Please Check your Data',
             'errors'   => $validator->errors()
-        ],400));
+        ],422));
     }
 }

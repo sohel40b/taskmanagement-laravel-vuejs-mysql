@@ -66,10 +66,8 @@ class AuthController extends Controller
         ];
     }
     public function dashboard(){
-        return [
-            'status' => true,
-            'message' => 'Welcome Dashboard',
-        ];
+        $user = User::where('id', Auth::id())->first();
+        return $user;
     }
 
 }
