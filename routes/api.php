@@ -10,5 +10,8 @@ Route::post("register", [AuthController::class,'register']);
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::get("dashboard", [AuthController::class,'dashboard'])->name('dashboard');
 
-    Route::apiResource('tasks', TaskController::class);
+    Route::get('/tasks/by/{status?}', [TaskController::class, 'getTasksByStatus']);
+    Route::apiResource('tasks', TaskController::class)->except([
+        'create','show', 'edit'
+    ]);
 });

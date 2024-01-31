@@ -27,7 +27,6 @@ class TaskStoreRequest extends FormRequest
         return [
             'title' => 'required|string|min:5|max:50|unique:tasks,title',
             'description' => 'required|string|max:255',
-            'status' => 'required'
         ];
     }
     public function data()
@@ -35,7 +34,6 @@ class TaskStoreRequest extends FormRequest
         return [
             'title' => $this->input('title'),
             'description' => $this->input('description'),
-            'status' => $this->input('status'),
             'user_id' => Auth::id()
         ];
     }

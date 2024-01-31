@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Task;
 use App\Http\Requests\TaskStoreRequest;
-use App\Http\Requests\TaskUpdateRequest;
 use App\Jobs\SendTaskNotification;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,12 +12,12 @@ class TaskController extends Controller
 
     public function index()
     {
-        $data = Task::where('user_id',Auth::id())->get();
-        if ($data->isNotEmpty()) {
+        $tasks = Task::where('user_id',Auth::id())->get();
+        if ($tasks->isNotEmpty()) {
             return response()->json([
                 'status' => true,
                 'message' => 'Data found',
-                'data' => $data
+                'tasks' => $tasks
             ], 200);
         } else {
             return response()->json([
@@ -28,9 +27,24 @@ class TaskController extends Controller
         }
     }
 
-    public function create()
+    public function getTasksByStatus($status = null)
     {
-        //
+        $tasks = ($status !== null)
+        ? Task::where([['status', $status],['user_id',Auth::id()]])->get()
+        : Task::all();
+        
+        if ($tasks->isNotEmpty()) {
+            return response()->json([
+                'status' => true,
+                'message' => 'Data found',
+                'tasks' => $tasks
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data not found',
+            ]);
+        }
     }
 
     public function store(TaskStoreRequest $request)
@@ -50,22 +64,12 @@ class TaskController extends Controller
         }
     }
 
-    public function show(Task $task)
-    {
-        //
-    }
-
-    public function edit(Task $task)
-    {
-        //
-    }
-
-    public function update(TaskUpdateRequest $request, Task $task)
+    public function update(Task $task)
     {
         try {
-            $task = Task::where('user_id', Auth::id())->first();
-            if ($task) {
-                $task->update($request->validated());
+            $task = Task::where('user_id', Auth::id())->where('id',$task->id)->first();
+            if ($task != null) {
+                $task->update(['status' => 1]);
                 SendTaskNotification::dispatch(Auth::user()->email);
                 return response()->json([
                     'status' => true,
@@ -88,8 +92,8 @@ class TaskController extends Controller
 
     public function destroy(Task $task)
     {
-        $task = Task::where('user_id', Auth::id())->first();
-        if ($task) {
+        $task = Task::where('user_id', Auth::id())->where('id',$task->id)->first();
+        if ($task != null) {
             $task->delete();
             return response()->json([
                 'status' => true,

@@ -10,10 +10,13 @@
                 <div class="d-flex">
                     <ul class="navbar-nav me-auto my-2 my-lg-0 navbar-nav-scroll" style="--bs-scroll-height: 100px;">
                         <li class="nav-item">
-                            <router-link to='/login' class="nav-link">Login</router-link>
+                            <router-link to='/login' class="nav-link" v-if="token == 0">Login</router-link>
                         </li>
                         <li class="nav-item">
-                            <router-link to='/register' class="nav-link">Register</router-link>
+                            <router-link to='/register' class="nav-link" v-if="token == 0">Register</router-link>
+                        </li>
+                        <li class="nav-item">
+                            <router-link to='/task-list' class="nav-link" v-if="token != 0">Task List</router-link>
                         </li>
                     </ul>
                 </div>
@@ -22,3 +25,14 @@
     </nav>
     <router-view></router-view>
 </template>
+<script>
+import { defineComponent } from 'vue';
+import { mapState } from 'pinia';
+import { UserStore } from '@/store/UserStore.js';
+
+export default defineComponent({
+  computed: {
+    ...mapState(UserStore, ['token']),
+  },
+});
+</script>

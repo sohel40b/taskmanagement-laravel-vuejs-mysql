@@ -6,6 +6,7 @@ import Welcome from '@/components/Welcome.vue'
 import Register from '@/components/Register.vue'
 import Login from '@/components/Login.vue'
 import Dashboard from '@/components/Dashboard.vue'
+import TaskList from '@/components/TaskList.vue'
 
 const routes = [
     {
@@ -41,6 +42,14 @@ const routes = [
         path: '/dashboard',
         name: 'Dashboard',
         component: Dashboard,
+        meta:{
+            auth:true
+        }
+    },
+    {
+        path: '/task-list',
+        name: 'TaskList',
+        component: TaskList,
         meta:{
             auth:true
         }
